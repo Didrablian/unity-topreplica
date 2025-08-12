@@ -143,7 +143,8 @@ public class TopDownControls : MonoBehaviour
                 Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
                 transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * navMeshAgent.angularSpeed);
 
-                if (Time.time >= lastAttackTime + playerStats.attackSpeed)
+                // Calculate attack cooldown based on attacks per second
+                if (Time.time >= lastAttackTime + (1f / playerStats.attackSpeed))
                 {
                     PerformAttack();
                     lastAttackTime = Time.time;
