@@ -119,7 +119,6 @@ public class Stats : MonoBehaviour
         if (level % 10 == 0) // Bonus points every 10 levels
         {
             attributePoints += 3; 
-            Debug.Log("Bonus 3 attribute points!");
         }
 
         currentExp -= maxExp; // Carry over excess exp
@@ -127,7 +126,6 @@ public class Stats : MonoBehaviour
 
         // For now, just recalculate based on new level.
         CalculateStats();
-        Debug.Log("Leveled up to: " + level + ", Attribute Points: " + attributePoints);
     }
 
     float CalculateNextLevelExp(int currentLevel)
@@ -155,7 +153,6 @@ public class Stats : MonoBehaviour
             strength++;
             attributePoints--;
             CalculateStats();
-            Debug.Log("Strength increased! Remaining attribute points: " + attributePoints);
         }
     }
 
@@ -166,7 +163,6 @@ public class Stats : MonoBehaviour
             agility++;
             attributePoints--;
             CalculateStats();
-            Debug.Log("Agility increased! Remaining attribute points: " + attributePoints);
         }
     }
 
@@ -177,7 +173,6 @@ public class Stats : MonoBehaviour
             constitution++;
             attributePoints--;
             CalculateStats();
-            Debug.Log("Constitution increased! Remaining attribute points: " + attributePoints);
         }
     }
 
@@ -188,7 +183,6 @@ public class Stats : MonoBehaviour
             spirit++;
             attributePoints--;
             CalculateStats();
-            Debug.Log("Spirit increased! Remaining attribute points: " + attributePoints);
         }
     }
 
@@ -199,7 +193,6 @@ public class Stats : MonoBehaviour
             accuracy++;
             attributePoints--;
             CalculateStats();
-            Debug.Log("Accuracy increased! Remaining attribute points: " + attributePoints);
         }
     }
 }

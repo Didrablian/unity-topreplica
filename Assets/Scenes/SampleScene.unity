@@ -470,6 +470,7 @@ MonoBehaviour:
   clickIndicatorPrefab: {fileID: 5584525668023745435, guid: d7699c165fb42764f88baa9240f28408, type: 3}
   smartCastRadius: 5
   drawSmartCastDebug: 1
+  floatingDamageNumberPrefab: {fileID: 4657213753989767991, guid: 698de1b1128dac94f9defe976c103975, type: 3}
 --- !u!195 &1267824807
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -749,9 +750,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterData: {fileID: 11400000, guid: fa963797988b9634ebb7125782ed1b6a, type: 2}
-  strength: 5
+  strength: 29
   agility: 5
-  constitution: 5
+  constitution: 96
   spirit: 5
   accuracy: 5
   level: 1
@@ -759,14 +760,14 @@ MonoBehaviour:
   movementSpeed: 5
   hoveringRadius: 5
   chaseRadius: 10
-  minPhysicalDamage: 4.2000003
-  maxPhysicalDamage: 6.3
+  minPhysicalDamage: 23.4
+  maxPhysicalDamage: 35.100002
   dodgePoints: 2.6
   attackSpeed: 1.1
-  defense: 3.15
-  maxHealth: 135
-  currentHealth: 135
-  healthRecoveryPerSecond: 0.55
+  defense: 57.750004
+  maxHealth: 590
+  currentHealth: 590
+  healthRecoveryPerSecond: 9.650001
   minMagicalDamage: 3.7
   maxMagicalDamage: 6.7999997
   maxMana: 70

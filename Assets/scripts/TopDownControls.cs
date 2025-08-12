@@ -18,6 +18,9 @@ public class TopDownControls : MonoBehaviour
     public float smartCastRadius = 5f;
     public bool drawSmartCastDebug = true;
 
+    [Header("UI Prefabs")]
+    public GameObject floatingDamageNumberPrefab; // Assign the FloatingDamageNumberPrefab here
+
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -65,7 +68,6 @@ public class TopDownControls : MonoBehaviour
                         }
                         else
                         {
-                            Debug.Log("Target selected (Left-click): " + currentTarget.name);
                             navMeshAgent.ResetPath(); // Stop any previous movement to immediately pursue new target
                             isAttackingTarget = true; // Now attacking this target
                         }
@@ -121,8 +123,6 @@ public class TopDownControls : MonoBehaviour
                         }
                         else
                         {
-                            Debug.Log("Target selected (Right-click): " + currentTarget.name);
-                            // No movement or attack initiated, just selection.
                             isAttackingTarget = false; // Explicitly NOT attacking
                         }
                     }
@@ -162,7 +162,6 @@ public class TopDownControls : MonoBehaviour
             if (playerStats != null)
             {
                 playerStats.GainExp(10f); // Add 10 experience points
-                Debug.Log("Gained 10 experience. Current EXP: " + playerStats.currentExp + "/" + playerStats.maxExp);
             }
         }
 
@@ -214,7 +213,6 @@ public class TopDownControls : MonoBehaviour
                         }
                         else
                         {
-                            Debug.Log("Smart Cast: Attacking closest enemy: " + currentTarget.name);
                             navMeshAgent.ResetPath();
                             isAttackingTarget = true;
                         }
@@ -223,7 +221,6 @@ public class TopDownControls : MonoBehaviour
                 else
                 {
                     // No enemies found, move to cursor location
-                    Debug.Log("Smart Cast: No enemies found, moving to cursor location.");
                     if (currentTarget != null)
                     {
                         currentTarget = null;
@@ -236,7 +233,7 @@ public class TopDownControls : MonoBehaviour
             }
             else
             {
-                Debug.Log("Smart Cast: Raycast did not hit ground.");
+                // Debug.Log("Smart Cast: Raycast did not hit ground.");
             }
         }
     }
@@ -270,6 +267,26 @@ public class TopDownControls : MonoBehaviour
             currentEnemyStats.currentHealth -= damage;
             Debug.Log(playerStats.gameObject.name + " attacked " + currentEnemyStats.gameObject.name + " with damage: " + damage.ToString("F2") + ". Enemy Health: " + currentEnemyStats.currentHealth.ToString("F2"));
 
+            // Show floating damage number
+            if (floatingDamageNumberPrefab != null)
+            {
+                Debug.Log("Instantiating floating damage number.");
+                GameObject go = Instantiate(floatingDamageNumberPrefab, currentEnemyStats.transform.position, Quaternion.identity);
+                FloatingDamageNumbers dmgText = go.GetComponent<FloatingDamageNumbers>();
+                if (dmgText != null)
+                {
+                    dmgText.Initialize(damage, false, false); // Assuming no critical hit or heal for now
+                }
+                else
+                {
+                    Debug.LogError("FloatingDamageNumbers component not found on instantiated prefab. Check prefab setup!");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Floating Damage Number Prefab is not assigned in TopDownControls.");
+            }
+
             if (currentEnemyStats.currentHealth <= 0)
             {
                 Debug.Log(currentEnemyStats.gameObject.name + " has been defeated!");
@@ -283,6 +300,25 @@ public class TopDownControls : MonoBehaviour
         {
             // Miss!
             Debug.Log(playerStats.gameObject.name + " missed " + currentEnemyStats.gameObject.name + ".");
+
+            // Show MISS! floating text
+            if (floatingDamageNumberPrefab != null)
+            {
+                GameObject go = Instantiate(floatingDamageNumberPrefab, currentEnemyStats.transform.position, Quaternion.identity);
+                FloatingDamageNumbers dmgText = go.GetComponent<FloatingDamageNumbers>();
+                if (dmgText != null)
+                {
+                    dmgText.Initialize(0, false, false, true); // Value 0, isMiss = true
+                }
+                else
+                {
+                    Debug.LogError("FloatingDamageNumbers component not found on instantiated MISS prefab. Check prefab setup!");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Floating Damage Number Prefab is not assigned in TopDownControls for MISS.");
+            }
         }
     }
 
