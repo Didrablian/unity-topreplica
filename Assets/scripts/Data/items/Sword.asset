@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dee163d687b3664f8fda8783f9a1215, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: 
+  itemName: Blade of the Ruined King
+  description: Sword
+  icon: {fileID: -1633539181, guid: 45835a5c2ad4ed446a87c62c1473bf45, type: 3}
+  value: 1
+  itemType: 1
+  equipSlot: 6
+  damageBonus: 0
+  defenseBonus: 0
+  attackSpeedBonus: 0
+  healthBonus: 0
+  manaBonus: 0
+  minPhysicalDamageBonus: 1000
+  maxPhysicalDamageBonus: 1000
+  dodgePointsBonus: 0
+  healthRecoveryPerSecondBonus: 0
+  minMagicalDamageBonus: 0
+  maxMagicalDamageBonus: 0
+  manaRecoveryPerSecondBonus: 0
+  rangedMinPhysicalDamageBonus: 0
+  rangedMaxPhysicalDamageBonus: 0
+  hitPointsBonus: 0
+  healthRestoreAmount: 0
+  manaRestoreAmount: 0
+  duration: 0
+  isStackable: 0
+  maxStackSize: 1
