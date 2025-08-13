@@ -97,6 +97,55 @@ public class PlayerInventory : MonoBehaviour
         return count >= quantity;
     }
 
+    // New: Method to use a consumable item
+    public void UseItem(Item itemToUse)
+    {
+        if (itemToUse == null)
+        {
+            Debug.LogWarning("Attempted to use a null item.");
+            return;
+        }
+
+        if (itemToUse.itemType != Item.ItemType.Consumable)
+        {
+            Debug.LogWarning($"Cannot use {itemToUse.itemName}: It's not a consumable item.");
+            return;
+        }
+
+        if (!HasItem(itemToUse, 1))
+        {
+            Debug.LogWarning($"Cannot use {itemToUse.itemName}: Not found in inventory.");
+            return;
+        }
+
+        // Reference to player's Stats component
+        Stats playerStats = GetComponent<Stats>();
+        if (playerStats == null)
+        {
+            Debug.LogError("PlayerStats component not found on PlayerInventory's GameObject. Cannot use consumable effects.");
+            return;
+        }
+
+        // Apply consumable effects
+        if (itemToUse.healthRestoreAmount > 0)
+        {
+            playerStats.currentHealth = Mathf.Min(playerStats.maxHealth, playerStats.currentHealth + itemToUse.healthRestoreAmount);
+            Debug.Log($"Used {itemToUse.itemName}: Restored {itemToUse.healthRestoreAmount:F0} Health. Current Health: {playerStats.currentHealth:F0}.");
+        }
+        if (itemToUse.manaRestoreAmount > 0)
+        {
+            playerStats.currentMana = Mathf.Min(playerStats.maxMana, playerStats.currentMana + itemToUse.manaRestoreAmount);
+            Debug.Log($"Used {itemToUse.itemName}: Restored {itemToUse.manaRestoreAmount:F0} Mana. Current Mana: {playerStats.currentMana:F0}.");
+        }
+
+        // Remove item after use
+        RemoveItem(itemToUse); // Quantity is 1 by default for RemoveItem
+        playerStats.UpdateUI(); // Update UI to reflect health/mana changes
+        LogAllItems(); // Update inventory debug log
+
+        Debug.Log($"Successfully used {itemToUse.itemName}.");
+    }
+
     // For debug logging all items currently in inventory
     public void LogAllItems()
     {

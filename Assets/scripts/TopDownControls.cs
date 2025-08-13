@@ -472,6 +472,37 @@ public class TopDownControls : MonoBehaviour
                 Debug.LogWarning("PlayerInventory reference is null. Cannot loot.");
             }
         }
+
+        // Consumable usage input (Press 'U')
+        if (inputEnabled && Input.GetKeyDown(KeyCode.U))
+        {
+            if (playerInventory != null)
+            {
+                // Find the first consumable item in the inventory
+                Item consumableToUse = null;
+                foreach (var item in playerInventory.items)
+                {
+                    if (item.itemType == Item.ItemType.Consumable)
+                    {
+                        consumableToUse = item;
+                        break; // Found one, stop searching
+                    }
+                }
+
+                if (consumableToUse != null)
+                {
+                    playerInventory.UseItem(consumableToUse);
+                }
+                else
+                {
+                    Debug.Log("No consumable items found in inventory to use.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("PlayerInventory reference is null. Cannot use items.");
+            }
+        }
     }
 
     void SetDestinationToMousePosition()
