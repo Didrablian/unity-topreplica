@@ -44,4 +44,8 @@ MonoBehaviour:
     dropChance: 1
     minQuantity: 1
     maxQuantity: 1
+  - item: {fileID: 11400000, guid: e37f9f1432adb9d4eba3c5bdd179dfca, type: 2}
+    dropChance: 1
+    minQuantity: 1
+    maxQuantity: 1
   worldItemPrefab: {fileID: 6368746974204974361, guid: 131b9694854fe554286f55a7a3fb1b04, type: 3}
