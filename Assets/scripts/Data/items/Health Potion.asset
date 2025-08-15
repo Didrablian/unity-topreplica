@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Health Potion
   description: add 50 hps
-  icon: {fileID: 0}
+  icon: {fileID: 2049628935, guid: 6e9f4d2d9ac243d40a31cf17eea1054b, type: 3}
   value: 100
   itemType: 3
   equipSlot: 0

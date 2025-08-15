@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.EventSystems; // New: Required for EventTrigger
 
 public class PlayerAbilities : MonoBehaviour
 {
@@ -12,6 +15,23 @@ public class PlayerAbilities : MonoBehaviour
     [Header("Ability Visuals")]
     public GameObject floatingDamageNumberPrefab; // Assign the FloatingDamageNumberPrefab here
 
+    [Header("Hotbar UI References")]
+    public Image ability1Icon;
+    public TextMeshProUGUI ability1KeybindText;
+    public TextMeshProUGUI ability1CooldownText;
+
+    public Image ability2Icon;
+    public TextMeshProUGUI ability2KeybindText;
+    public TextMeshProUGUI ability2CooldownText;
+
+    public Image ability3Icon;
+    public TextMeshProUGUI ability3KeybindText;
+    public TextMeshProUGUI ability3CooldownText;
+
+    public Image ability4Icon;
+    public TextMeshProUGUI ability4KeybindText;
+    public TextMeshProUGUI ability4CooldownText;
+
     // Reference to player Stats script (for mana, etc.)
     private Stats playerStats;
 
@@ -23,6 +43,9 @@ public class PlayerAbilities : MonoBehaviour
 
     // Reference to TopDownControls
     private TopDownControls topDownControls;
+
+    // New: Reference to the Tooltip script
+    public Tooltip abilityTooltip;
 
     void Start()
     {
@@ -41,6 +64,57 @@ public class PlayerAbilities : MonoBehaviour
             enabled = false; // Disable this script if TopDownControls is not found
             return;
         }
+
+        // New: Programmatically ensure EventSystem exists
+        if (EventSystem.current == null)
+        {
+            GameObject eventSystemObj = new GameObject("EventSystem");
+            eventSystemObj.AddComponent<EventSystem>();
+            eventSystemObj.AddComponent<StandaloneInputModule>();
+            Debug.Log("EventSystem created programmatically.");
+        }
+
+        // New: Ensure Graphic Raycaster is on the parent Canvas of the ability icons
+        if (ability1Icon != null)
+        {
+            Canvas parentCanvas = ability1Icon.canvas;
+            if (parentCanvas != null)
+            {
+                if (parentCanvas.GetComponent<GraphicRaycaster>() == null)
+                {
+                    parentCanvas.gameObject.AddComponent<GraphicRaycaster>();
+                    Debug.Log($"GraphicRaycaster added to Canvas: {parentCanvas.name}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Ability icon's parent Canvas not found. Cannot add GraphicRaycaster programmatically.");
+            }
+        }
+
+        if (abilityTooltip == null)
+        {
+            Debug.LogError("Ability Tooltip reference is not assigned in PlayerAbilities.cs!");
+        }
+
+        // Setup UI event listeners for tooltips
+        SetupAbilitySlotEvents(ability1, ability1Icon);
+        SetupAbilitySlotEvents(ability2, ability2Icon);
+        SetupAbilitySlotEvents(ability3, ability3Icon);
+        SetupAbilitySlotEvents(ability4, ability4Icon);
+
+        // NEW: Verify ability icon assignments at Start
+        Debug.Log($"Ability1 Icon assigned: {ability1Icon != null}");
+        if (ability1Icon != null) Debug.Log($"Ability1 Icon Name: {ability1Icon.name}");
+
+        Debug.Log($"Ability2 Icon assigned: {ability2Icon != null}");
+        if (ability2Icon != null) Debug.Log($"Ability2 Icon Name: {ability2Icon.name}");
+
+        Debug.Log($"Ability3 Icon assigned: {ability3Icon != null}");
+        if (ability3Icon != null) Debug.Log($"Ability3 Icon Name: {ability3Icon.name}");
+
+        Debug.Log($"Ability4 Icon assigned: {ability4Icon != null}");
+        if (ability4Icon != null) Debug.Log($"Ability4 Icon Name: {ability4Icon.name}");
     }
 
     void Update()
@@ -50,6 +124,12 @@ public class PlayerAbilities : MonoBehaviour
         ability2CooldownTimer = Mathf.Max(0, ability2CooldownTimer - Time.deltaTime);
         ability3CooldownTimer = Mathf.Max(0, ability3CooldownTimer - Time.deltaTime);
         ability4CooldownTimer = Mathf.Max(0, ability4CooldownTimer - Time.deltaTime);
+
+        // Update UI for all ability slots
+        UpdateAbilitySlotUI(ability1, ability1Icon, ability1KeybindText, ability1CooldownText, ability1CooldownTimer, KeyCode.Alpha1);
+        UpdateAbilitySlotUI(ability2, ability2Icon, ability2KeybindText, ability2CooldownText, ability2CooldownTimer, KeyCode.Alpha2);
+        UpdateAbilitySlotUI(ability3, ability3Icon, ability3KeybindText, ability3CooldownText, ability3CooldownTimer, KeyCode.Alpha3);
+        UpdateAbilitySlotUI(ability4, ability4Icon, ability4KeybindText, ability4CooldownText, ability4CooldownTimer, KeyCode.Alpha4);
 
         // Only allow ability casting if input is enabled via TopDownControls
         if (!topDownControls.IsInputEnabled) return;
@@ -438,6 +518,177 @@ public class PlayerAbilities : MonoBehaviour
             {
                 ApplyDamageToTarget(enemyStats, damageAmount, ability.damageType);
             }
+        }
+    }
+
+    // New method to setup event triggers for ability slots
+    private void SetupAbilitySlotEvents(AbilityData ability, Image iconImage)
+    {
+        if (iconImage == null || abilityTooltip == null) {
+            Debug.LogWarning($"SetupAbilitySlotEvents: Missing iconImage or abilityTooltip. Icon: {(iconImage != null ? iconImage.name : "NULL")}, Tooltip: {(abilityTooltip != null ? abilityTooltip.name : "NULL")}");
+            return;
+        }
+
+        Debug.Log($"SetupAbilitySlotEvents: Processing icon: {iconImage.name}");
+
+        // Ensure the iconImage has a CanvasGroup to prevent raycast blocking if not present
+        CanvasGroup canvasGroup = iconImage.gameObject.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = iconImage.gameObject.AddComponent<CanvasGroup>();
+        }
+        canvasGroup.blocksRaycasts = true; // Ensure it blocks raycasts for events
+        canvasGroup.interactable = true; // Ensure it's interactable
+
+        // Ensure the Image component itself has raycastTarget enabled
+        if (iconImage != null)
+        {
+            iconImage.raycastTarget = true;
+        }
+
+        EventTrigger trigger = iconImage.gameObject.GetComponent<EventTrigger>();
+        if (trigger == null)
+        {
+            trigger = iconImage.gameObject.AddComponent<EventTrigger>();
+        }
+
+        // Clear existing triggers to prevent duplicates if Start is called multiple times (though it shouldn't be)
+        trigger.triggers.Clear();
+
+        // Pointer Enter event
+        EventTrigger.Entry entryEnter = new EventTrigger.Entry();
+        entryEnter.eventID = EventTriggerType.PointerEnter;
+        entryEnter.callback.AddListener((data) => { 
+            Debug.Log($"PointerEnter detected for ability: {(ability != null ? ability.abilityName : "NULL")}");
+            OnPointerEnterAbilitySlot(ability); 
+        });
+        trigger.triggers.Add(entryEnter);
+
+        // Pointer Exit event
+        EventTrigger.Entry entryExit = new EventTrigger.Entry();
+        entryExit.eventID = EventTriggerType.PointerExit;
+        entryExit.callback.AddListener((data) => { 
+            Debug.Log("PointerExit detected.");
+            OnPointerExitAbilitySlot(); 
+        });
+        trigger.triggers.Add(entryExit);
+
+        Debug.Log($"EventTriggers added to {iconImage.name} for PointerEnter and PointerExit.");
+    }
+
+    // Event handler for when mouse enters an ability slot
+    private void OnPointerEnterAbilitySlot(AbilityData ability)
+    {
+        Debug.Log($"OnPointerEnterAbilitySlot called for ability: {(ability != null ? ability.abilityName : "NULL")}");
+        if (abilityTooltip != null && ability != null)
+        {
+            string tooltipContent = GenerateAbilityTooltipContent(ability);
+            abilityTooltip.ShowTooltip(tooltipContent);
+        }
+    }
+
+    // Event handler for when mouse exits an ability slot
+    private void OnPointerExitAbilitySlot()
+    {
+        Debug.Log("OnPointerExitAbilitySlot called.");
+        if (abilityTooltip != null)
+        {
+            abilityTooltip.HideTooltip();
+        }
+    }
+
+    // Generates the tooltip content string for an ability
+    private string GenerateAbilityTooltipContent(AbilityData ability)
+    {
+        if (ability == null) return "";
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("<size=120%><color=#FFFF00>" + ability.abilityName + "</color></size>");
+        sb.AppendLine(ability.description);
+        sb.AppendLine($"\n<color=#00FFFF>Mana Cost: {ability.manaCost:F0}</color>");
+        sb.AppendLine($"<color=#FF00FF>Cooldown: {ability.cooldown:F1}s</color>");
+
+        // Add damage/healing info if applicable
+        if (ability.abilityType == AbilityData.AbilityType.Damage)
+        {
+            float minDamage = ability.baseDamageOrHealing; // Simplistic, actual min/max would come from player stats + scaling
+            float maxDamage = ability.baseDamageOrHealing; // Will be refined with proper scaling calculation
+
+            if (ability.damageScalings.Count > 0)
+            {
+                // For tooltip, we can just show the base + an indicator of scaling or a calculated value
+                // For a more accurate tooltip, you'd need to calculate based on current player stats.
+                // For now, let's just show the calculated value with current player stats.
+                minDamage = CalculateScaledValue(ability.damageScalings, ability.baseDamageOrHealing);
+                maxDamage = minDamage; // Assume min/max are same for abilities for now unless explicitly defined
+                sb.AppendLine($"<color=#FF5555>Damage: {minDamage:F0} {ability.damageType} Damage</color>");
+            } else {
+                 sb.AppendLine($"<color=#FF5555>Damage: {ability.baseDamageOrHealing:F0} {ability.damageType} Damage</color>");
+            }
+        }
+        else if (ability.abilityType == AbilityData.AbilityType.Heal)
+        {
+            float healingAmount = CalculateScaledValue(ability.healingScalings, ability.baseDamageOrHealing);
+            sb.AppendLine($"<color=#00FF00>Healing: {healingAmount:F0}</color>");
+        }
+
+        // Add cast time
+        if (ability.castTime > 0)
+        {
+            sb.AppendLine($"<color=#AAAAAA>Cast Time: {ability.castTime:F1}s</color>");
+        }
+
+        // Add range/AoE info
+        if (ability.targetType == AbilityData.TargetType.SingleTarget || ability.targetType == AbilityData.TargetType.AreaOfEffect || ability.targetType == AbilityData.TargetType.PointTarget)
+        {
+            sb.AppendLine($"<color=#AAAAAA>Range: {ability.range:F1}m</color>");
+            if (ability.targetType == AbilityData.TargetType.AreaOfEffect)
+            {
+                sb.AppendLine($"<color=#AAAAAA>Area Radius: {ability.areaRadius:F1}m</color>");
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    // New method to update a single ability slot's UI
+    void UpdateAbilitySlotUI(AbilityData ability, Image iconImage, TextMeshProUGUI keybindText, TextMeshProUGUI cooldownText, float currentCooldown, KeyCode keybind)
+    {
+        if (iconImage == null || keybindText == null || cooldownText == null) return; // Basic null check
+
+        if (ability != null)
+        {
+            iconImage.gameObject.SetActive(true); // Ensure icon is visible if ability is assigned
+            iconImage.sprite = ability.icon;
+            keybindText.text = keybind.ToString().Replace("Alpha", ""); // Display '1', '2', etc. instead of 'Alpha1'
+
+            if (currentCooldown > 0)
+            {
+                cooldownText.text = currentCooldown.ToString("F1"); // Display cooldown with one decimal
+                cooldownText.gameObject.SetActive(true); // Show cooldown text
+                iconImage.color = new Color(0.5f, 0.5f, 0.5f, 0.8f); // Dim icon when on cooldown
+            }
+            else
+            {
+                cooldownText.gameObject.SetActive(false); // Hide cooldown text
+                iconImage.color = Color.white; // Full color when off cooldown
+            }
+
+            // Mana cost display (optional, could be added to tooltip later)
+            // For now, if insufficient mana, maybe dim slightly more or show a warning
+            if (playerStats != null && playerStats.currentMana < ability.manaCost)
+            {
+                iconImage.color = new Color(0.3f, 0.3f, 1f, 0.8f); // Blue tint for insufficient mana
+            }
+
+        }
+        else
+        {
+            // If no ability is assigned, hide the icon and texts or show empty state
+            iconImage.gameObject.SetActive(false); // Hide the icon
+            keybindText.text = keybind.ToString().Replace("Alpha", ""); // Still show keybind even if no ability
+            cooldownText.gameObject.SetActive(false); // Hide cooldown text
         }
     }
 }

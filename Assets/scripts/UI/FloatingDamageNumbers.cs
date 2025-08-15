@@ -36,7 +36,7 @@ public class FloatingDamageNumbers : MonoBehaviour
         // Set up TextMeshPro properties
         textMesh.fontSize = 9;
         textMesh.alignment = TextAlignmentOptions.Center;
-        textMesh.enableWordWrapping = false;
+        textMesh.textWrappingMode = TextWrappingModes.Normal; // Changed from enableWordWrapping
         
         if (bebassNeueFontAsset != null)
         {

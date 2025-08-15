@@ -14,9 +14,12 @@ public class PlayerEquipment : MonoBehaviour
     public Item equippedOffHand;   
     public Item equippedTwoHanded; // If a two-handed weapon, main and off-hand should be null
     public Item equippedRing1;     
-    public Item equippedRing2;     
+    public Item equippedRing2; // NEW: Ring2 slot
     public Item equippedNecklace;  
-    public Item equippedTrinket;   
+    public Item equippedFairy; // NEW: Fairy slot
+
+    // Reference to EquipmentUIHandler
+    public EquipmentUIHandler uiHandler; // NEW: Assign this in Inspector
 
     // References to player components
     private Stats playerStats;
@@ -86,7 +89,7 @@ public class PlayerEquipment : MonoBehaviour
         ApplyAllEquippedBonuses(); // Re-calculate and apply all bonuses
 
         Debug.Log($"Equipped {itemToEquip.itemName} in {targetSlot} slot.");
-        playerInventory.LogAllItems(); // For debug
+        if (uiHandler != null) uiHandler.UpdateEquipmentUI(); // Update UI after equip
     }
 
     // Method to unequip an item
@@ -105,11 +108,37 @@ public class PlayerEquipment : MonoBehaviour
         ApplyAllEquippedBonuses(); // Re-calculate and apply all bonuses
 
         Debug.Log($"Unequipped {itemToUnequip.itemName} from {slotToUnequip} slot.");
-        playerInventory.LogAllItems(); // For debug
+        if (uiHandler != null) uiHandler.UpdateEquipmentUI(); // Update UI after unequip
     }
 
-    // Helper to get item in a specific slot
-    private Item GetEquippedItemInSlot(Item.EquipmentSlotType slot)
+    // NEW: Validation method to check if an item can be equipped into a specific slot
+    public bool CanEquipItem(Item item, Item.EquipmentSlotType targetSlotType)
+    {
+        if (item == null || targetSlotType == Item.EquipmentSlotType.None) return false;
+
+        // Check if the item's equipSlot matches the target slot type
+        if (item.equipSlot != targetSlotType) return false;
+
+        // Additional checks can be added here:
+        // - Player level requirements
+        // - Class restrictions
+        // - Stat requirements (e.g., requires X strength)
+
+        return true;
+    }
+
+    // NEW: Validation method to check if two items can be swapped (or one can replace another)
+    public bool CanSwapItems(Item itemToPlace, Item.EquipmentSlotType targetSlotType)
+    {
+        // Simplest check: itemToPlace must be equippable in the target slot.
+        // More complex logic can involve checking if the item currently in targetSlot
+        // can be put into the source slot (if it's a two-way swap).
+
+        return CanEquipItem(itemToPlace, targetSlotType);
+    }
+
+    // Helper to get item in a specific slot (Changed to public)
+    public Item GetEquippedItemInSlot(Item.EquipmentSlotType slot)
     {
         return slot switch
         {
@@ -121,9 +150,10 @@ public class PlayerEquipment : MonoBehaviour
             Item.EquipmentSlotType.MainHand => equippedMainHand,
             Item.EquipmentSlotType.OffHand => equippedOffHand,
             Item.EquipmentSlotType.TwoHanded => equippedTwoHanded,
-            Item.EquipmentSlotType.Ring => equippedRing1, // Simplified for now, handle multiple rings later
+            Item.EquipmentSlotType.Ring1 => equippedRing1, // Renamed from Ring
+            Item.EquipmentSlotType.Ring2 => equippedRing2, // NEW: Ring2 slot
             Item.EquipmentSlotType.Necklace => equippedNecklace,
-            Item.EquipmentSlotType.Trinket => equippedTrinket,
+            Item.EquipmentSlotType.Fairy => equippedFairy, // NEW: Fairy slot
             _ => null,
         };
     }
@@ -141,9 +171,10 @@ public class PlayerEquipment : MonoBehaviour
             case Item.EquipmentSlotType.MainHand: equippedMainHand = item; break;
             case Item.EquipmentSlotType.OffHand: equippedOffHand = item; break;
             case Item.EquipmentSlotType.TwoHanded: equippedTwoHanded = item; break;
-            case Item.EquipmentSlotType.Ring: equippedRing1 = item; break; // Simplified
+            case Item.EquipmentSlotType.Ring1: equippedRing1 = item; break; // Renamed from Ring
+            case Item.EquipmentSlotType.Ring2: equippedRing2 = item; break; // NEW: Ring2 slot
             case Item.EquipmentSlotType.Necklace: equippedNecklace = item; break;
-            case Item.EquipmentSlotType.Trinket: equippedTrinket = item; break;
+            case Item.EquipmentSlotType.Fairy: equippedFairy = item; break; // NEW: Fairy slot
             // Default case intentionally left out for explicit handling.
         }
         // Handle two-handed weapon: if equipped, clear main/off-hand.
@@ -177,9 +208,9 @@ public class PlayerEquipment : MonoBehaviour
         ApplyBonusesFromItem(equippedOffHand);
         ApplyBonusesFromItem(equippedTwoHanded);
         ApplyBonusesFromItem(equippedRing1);
-        ApplyBonusesFromItem(equippedRing2);
+        ApplyBonusesFromItem(equippedRing2); // NEW: Ring2 slot
         ApplyBonusesFromItem(equippedNecklace);
-        ApplyBonusesFromItem(equippedTrinket);
+        ApplyBonusesFromItem(equippedFairy); // NEW: Fairy slot
 
         playerStats.CalculateStats(); // Recalculate player stats after applying bonuses
         playerStats.UpdateUI(); // Update UI to reflect new stats

@@ -52,6 +52,9 @@ public class TopDownControls : MonoBehaviour
     public GameObject enemyNameplateUI; // Assign your enemy nameplate GameObject here
     public GameObject statsPanelUI; // New: Assign your Stats Panel UI GameObject here
 
+    // New: Reference to PlayerEquipment
+    public PlayerEquipment playerEquipment; // Assign the PlayerEquipment script here
+
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -118,7 +121,6 @@ public class TopDownControls : MonoBehaviour
                     {
                         playerInventory.AddItem(clickedWorldItem.itemData);
                         Destroy(clickedWorldItem.gameObject);
-                        playerInventory.LogAllItems();
                         targetLootItem = null; // Clear any pending loot target
                         navMeshAgent.ResetPath(); // Stop any current movement
                     }
@@ -322,7 +324,6 @@ public class TopDownControls : MonoBehaviour
                 {
                     playerInventory.AddItem(worldItem.itemData);
                     Destroy(worldItem.gameObject);
-                    playerInventory.LogAllItems();
                 }
                 targetLootItem = null; // Clear loot target after looting/failure
                 navMeshAgent.ResetPath(); // Stop movement after looting
@@ -455,7 +456,6 @@ public class TopDownControls : MonoBehaviour
                     {
                         playerInventory.AddItem(worldItem.itemData); // Add item to inventory
                         Destroy(worldItem.gameObject); // Destroy the world item
-                        playerInventory.LogAllItems(); // Log current inventory for debug
                     }
                     else
                     {
@@ -480,11 +480,13 @@ public class TopDownControls : MonoBehaviour
             {
                 // Find the first consumable item in the inventory
                 Item consumableToUse = null;
-                foreach (var item in playerInventory.items)
+                foreach (var inventoryItem in playerInventory.items)
                 {
-                    if (item.itemType == Item.ItemType.Consumable)
+                    if (inventoryItem == null || inventoryItem.itemData == null) continue; // Skip if the slot is empty or itemData is null
+
+                    if (inventoryItem.itemData.itemType == Item.ItemType.Consumable)
                     {
-                        consumableToUse = item;
+                        consumableToUse = inventoryItem.itemData; // Get the actual Item ScriptableObject
                         break; // Found one, stop searching
                     }
                 }
@@ -501,6 +503,40 @@ public class TopDownControls : MonoBehaviour
             else
             {
                 Debug.LogWarning("PlayerInventory reference is null. Cannot use items.");
+            }
+        }
+
+        // NEW: Equipping item input (Press 'Q')
+        if (inputEnabled && Input.GetKeyDown(KeyCode.Q))
+        {
+            if (playerInventory != null && playerEquipment != null)
+            {
+                Item itemToEquip = null;
+                // Find the first equippable item in inventory
+                foreach (var inventoryItem in playerInventory.items)
+                {
+                    if (inventoryItem == null || inventoryItem.itemData == null) continue; // Skip empty slots or null itemData
+
+                    if (inventoryItem.itemData.itemType == Item.ItemType.Weapon || inventoryItem.itemData.itemType == Item.ItemType.Armor)
+                    {
+                        itemToEquip = inventoryItem.itemData; // Get the actual Item ScriptableObject
+                        break; // Found an equippable item, take the first one
+                    }
+                }
+
+                if (itemToEquip != null)
+                {
+                    playerEquipment.EquipItem(itemToEquip);
+                }
+                else
+                {
+                    // Removed: Debug.Log("No equippable items (Weapon/Armor) found in inventory.");
+                }
+            }
+            else
+            {
+                // Removed: if (playerInventory == null) Debug.LogWarning("PlayerInventory reference is null. Cannot equip.");
+                // Removed: if (playerEquipment == null) Debug.LogWarning("PlayerEquipment reference is null. Cannot equip.");
             }
         }
     }

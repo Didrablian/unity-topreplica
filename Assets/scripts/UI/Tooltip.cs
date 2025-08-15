@@ -65,6 +65,15 @@ public class Tooltip : MonoBehaviour
         // Set a default background color (e.g., semi-transparent black or a solid light color)
         backgroundImage.color = new Color(0.1f, 0.1f, 0.1f, 0.8f); // Dark grey with some transparency
 
+        // New: Add and configure CanvasGroup to prevent mouse interaction
+        CanvasGroup canvasGroup = tooltipPanel.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = tooltipPanel.AddComponent<CanvasGroup>();
+        }
+        canvasGroup.blocksRaycasts = false; // Important: Make it transparent to raycasts
+        canvasGroup.interactable = false; // Also make it non-interactable
+
         // Set tooltip panel to be the last sibling to ensure highest Z-order
         if (tooltipPanel.transform.parent != null)
         {
@@ -74,6 +83,7 @@ public class Tooltip : MonoBehaviour
 
     public void ShowTooltip(string content)
     {
+        Debug.Log($"ShowTooltip called with content: {content}");
         if (tooltipPanel != null)
         {
             if (tooltipText != null)

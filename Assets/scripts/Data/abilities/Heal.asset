@@ -13,21 +13,24 @@ MonoBehaviour:
   m_Name: Heal
   m_EditorClassIdentifier: 
   abilityName: Heal
-  description: 'HealsYou
+  description: 'heals you
 
 '
-  icon: {fileID: 0}
+  icon: {fileID: 2049628935, guid: 6e9f4d2d9ac243d40a31cf17eea1054b, type: 3}
   cooldown: 5
   manaCost: 10
   castTime: 0
-  abilityType: 0
+  abilityType: 1
   targetType: 0
-  range: 10
-  areaRadius: 5
-  damageType: 0
-  baseDamageOrHealing: 0
+  range: 0
+  areaRadius: 0
+  damageType: 2
+  baseDamageOrHealing: 50
   damageScalings: []
-  healingScalings: []
+  healingScalings:
+  - statType: 3
+    scaleFactor: 1.1
+    operationType: 1
   duration: 5
   effectMagnitude: 0.1
   statAffected: 0

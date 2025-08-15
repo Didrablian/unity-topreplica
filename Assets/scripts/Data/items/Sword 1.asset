@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dee163d687b3664f8fda8783f9a1215, type: 3}
-  m_Name: Sword
+  m_Name: Sword 1
   m_EditorClassIdentifier: 
-  itemName: Blade of the Ruined King
+  itemName: Blade of the Ruined King2
   description: Sword
   icon: {fileID: -1633539181, guid: 45835a5c2ad4ed446a87c62c1473bf45, type: 3}
   value: 1
@@ -23,8 +23,8 @@ MonoBehaviour:
   attackSpeedBonus: 0
   healthBonus: 0
   manaBonus: 0
-  minPhysicalDamageBonus: 5000
-  maxPhysicalDamageBonus: 5000
+  minPhysicalDamageBonus: 5500
+  maxPhysicalDamageBonus: 5500
   dodgePointsBonus: 0
   healthRecoveryPerSecondBonus: 0
   minMagicalDamageBonus: 0

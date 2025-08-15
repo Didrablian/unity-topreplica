@@ -14,7 +14,7 @@ public class Item : ScriptableObject
     [Header("Item Type")]
     public ItemType itemType = ItemType.Generic;
 
-    public enum EquipmentSlotType { None, Head, Chest, Legs, Feet, Hands, MainHand, OffHand, TwoHanded, Ring, Necklace, Trinket }
+    public enum EquipmentSlotType { None, Head, Chest, Legs, Feet, Hands, MainHand, OffHand, TwoHanded, Ring1, Ring2, Necklace, Fairy }
     [Header("Equipment Properties")]
     public EquipmentSlotType equipSlot = EquipmentSlotType.None;
     public float damageBonus = 0f; // For weapons
