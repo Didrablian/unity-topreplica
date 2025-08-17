@@ -16,6 +16,9 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
     public InventoryUIHandler uiHandler; // Changed from private to public
     private GameObject currentItemImageGameObject; // To keep track of the instantiated item image
 
+    // New: Property to define the type of slot (for equipment slots)
+    public Item.EquipmentSlotType slotType = Item.EquipmentSlotType.None;
+
     // New: CanvasGroup for stackCountText to control raycasting
     private CanvasGroup stackTextCanvasGroup;
 

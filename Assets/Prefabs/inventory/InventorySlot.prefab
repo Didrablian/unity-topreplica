@@ -268,6 +268,8 @@ MonoBehaviour:
   item: {fileID: 11400000, guid: e37f9f1432adb9d4eba3c5bdd179dfca, type: 2}
   itemImagePrefab: {fileID: 8134357123649112876}
   stackCountText: {fileID: 6163052571699481542}
+  uiHandler: {fileID: 0}
+  slotType: 0
   normalColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.5}
   highlightColor: {r: 0.9, g: 0.9, b: 0.1, a: 0.8}
   outlineThickness: 2
@@ -376,6 +378,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7cc4a81064140f4ab2ad22c472945ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerTransform: {fileID: 992327764544753599, guid: 077414aa8317cbe44bc42680fed40f78, type: 3}
+  darkBGImage: {fileID: 0}
 --- !u!225 &2322810806954884885
 CanvasGroup:
   m_ObjectHideFlags: 0

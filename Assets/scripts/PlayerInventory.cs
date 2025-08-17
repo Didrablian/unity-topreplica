@@ -283,5 +283,23 @@ public class PlayerInventory : MonoBehaviour
 
         Debug.Log($"Successfully used {itemToUse.itemName}.");
     }
+
+    // New: Method to log all items in the inventory for debugging
+    public void LogAllItems()
+    {
+        Debug.Log("--- Current Inventory Items ---");
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] != null)
+            {
+                Debug.Log($"Slot {i}: {items[i].itemData.itemName} (x{items[i].quantity})");
+            }
+            else
+            {
+                Debug.Log($"Slot {i}: Empty");
+            }
+        }
+        Debug.Log("-----------------------------");
+    }
 }
 

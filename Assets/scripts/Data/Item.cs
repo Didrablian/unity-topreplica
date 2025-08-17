@@ -45,10 +45,7 @@ public class Item : ScriptableObject
     public bool isStackable = true;
     public int maxStackSize = 99;
 
-    // You can add more properties here as your game evolves
-    // For example:
-    // public GameObject itemPrefab; // For visual representation when dropped in world
-    // public Rarity rarity; // Enum for item rarity
-    // public List<StatModifier> statModifiers; // For more complex stat changes
+    // New: Reference to the 3D prefab for this item when dropped in the world
+    public GameObject itemPrefab;
 }
 

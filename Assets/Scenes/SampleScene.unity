@@ -127,6 +127,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2073622682}
     m_Modifications:
+    - target: {fileID: 2802251620854291827, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
+      propertyPath: darkBGImage
+      value: 
+      objectReference: {fileID: 449612159}
+    - target: {fileID: 2802251620854291827, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
+      propertyPath: playerTransform
+      value: 
+      objectReference: {fileID: 1267824805}
     - target: {fileID: 2982003780644757213, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1938,6 +1946,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2073622682}
     m_Modifications:
+    - target: {fileID: 2802251620854291827, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
+      propertyPath: playerTransform
+      value: 
+      objectReference: {fileID: 1267824805}
     - target: {fileID: 2982003780644757213, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2046,7 +2058,7 @@ GameObject:
   - component: {fileID: 449612163}
   m_Layer: 5
   m_Name: darkbg_image
-  m_TagString: Untagged
+  m_TagString: DarkPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4329,7 +4341,6 @@ MonoBehaviour:
   floatingDamageNumberPrefab: {fileID: 4657213753989767991, guid: 698de1b1128dac94f9defe976c103975, type: 3}
   enemyNameplateUI: {fileID: 1756295598}
   statsPanelUI: {fileID: 818516865}
-  playerEquipment: {fileID: 1267824814}
 --- !u!195 &1267824807
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -6134,6 +6145,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2073622682}
     m_Modifications:
+    - target: {fileID: 2802251620854291827, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
+      propertyPath: darkBGImage
+      value: 
+      objectReference: {fileID: 449612159}
+    - target: {fileID: 2802251620854291827, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
+      propertyPath: playerTransform
+      value: 
+      objectReference: {fileID: 1267824805}
     - target: {fileID: 2982003780644757213, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -6445,6 +6464,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2073622682}
     m_Modifications:
+    - target: {fileID: 2802251620854291827, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
+      propertyPath: darkBGImage
+      value: 
+      objectReference: {fileID: 449612159}
+    - target: {fileID: 2802251620854291827, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
+      propertyPath: playerTransform
+      value: 
+      objectReference: {fileID: 1267824805}
     - target: {fileID: 2982003780644757213, guid: 1b6d51e2837729b44a5973fe5bbc3d26, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -8648,6 +8675,10 @@ PrefabInstance:
     - target: {fileID: 1326769965424762989, guid: 077414aa8317cbe44bc42680fed40f78, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1326769965424762989, guid: 077414aa8317cbe44bc42680fed40f78, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

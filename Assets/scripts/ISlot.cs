@@ -8,3 +8,4 @@ public interface ISlot
     GameObject GetGameObject(); // To get the transform
     // Add other common methods here as needed by InventoryItemDrag
 }
+

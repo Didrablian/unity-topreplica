@@ -158,6 +158,18 @@ public class PlayerEquipment : MonoBehaviour
         };
     }
 
+    // NEW: Method to get the InventoryItem equipped in a specific slot
+    public InventoryItem GetEquippedItem(Item.EquipmentSlotType slot)
+    {
+        Item equippedItemData = GetEquippedItemInSlot(slot);
+        if (equippedItemData != null)
+        {
+            // Assuming quantity is always 1 for equipped items, or fetch from a mapping if needed
+            return new InventoryItem(equippedItemData, 1);
+        }
+        return null;
+    }
+
     // Helper to set item in a specific slot
     private void SetEquippedItemInSlot(Item.EquipmentSlotType slot, Item item)
     {

@@ -38,3 +38,4 @@ MonoBehaviour:
   duration: 0
   isStackable: 0
   maxStackSize: 1
+  itemPrefab: {fileID: 1326769965424762989, guid: 077414aa8317cbe44bc42680fed40f78, type: 3}
