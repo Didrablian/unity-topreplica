@@ -23,10 +23,10 @@ public class TopDownRpgCamera : MonoBehaviour
     {
         if (player == null) return;
 
-        // Zoom in/out
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        distance -= scroll * scrollSpeed;
-        distance = Mathf.Clamp(distance, 5f, 20f);
+        // Commented out: Zoom in/out
+        // float scroll = Input.GetAxis("Mouse ScrollWheel");
+        // distance -= scroll * scrollSpeed;
+        // distance = Mathf.Clamp(distance, 5f, 20f);
 
         // Calculate target position and rotation
         Quaternion rotation = Quaternion.Euler(currentRotation);

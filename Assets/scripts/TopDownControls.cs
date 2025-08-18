@@ -18,6 +18,10 @@ public class TopDownControls : MonoBehaviour
     // Reference to Player Inventory
     private PlayerInventory playerInventory;
 
+    // New: For NPC interaction
+    private Transform targetNPC; // The NPC transform being targeted for interaction
+    private NPCDialogue targetedNPCDialogue; // Reference to the NPCDialogue script on targetNPC
+
     // New: For click-to-loot functionality
     private Transform targetLootItem; // The WorldItem transform being targeted for looting
     public float lootRange = 2.5f; // Range within which items can be looted (should be slightly more than 2f from E key logic)
@@ -91,7 +95,7 @@ public class TopDownControls : MonoBehaviour
         // This check should only apply to mouse-based input for game actions.
         // Keyboard inputs (like 'C' for panel toggle) should always work.
 
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject() && inputEnabled)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -105,6 +109,13 @@ public class TopDownControls : MonoBehaviour
                 {
                     targetLootItem = null; // Clear pending loot target
                     navMeshAgent.ResetPath(); // Stop movement towards old loot target
+                }
+                // NEW: If we click something different than the current NPC target, or if we click something else entirely, clear the NPC target.
+                if (targetNPC != null && hit.transform != targetNPC)
+                {
+                    targetNPC = null; // Clear pending NPC target
+                    targetedNPCDialogue = null; // Clear reference
+                    navMeshAgent.ResetPath(); // Stop movement towards old NPC target
                 }
 
                 // Check if the hit object is a WorldItem (lootable)
@@ -131,6 +142,42 @@ public class TopDownControls : MonoBehaviour
                         currentTarget = null; // Prioritize loot over combat target
                         isAttackingTarget = false; 
                         if (enemyNameplateUI != null) enemyNameplateUI.SetActive(false);
+                        targetNPC = null; // Clear NPC target
+                        targetedNPCDialogue = null;
+                    }
+                }
+                // NEW: Check if the hit object is an NPC
+                else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("NPC"))
+                {
+                    lastMovementClickTime = Time.time; // Reset debounce timer for NPC targeting
+                    targetLootItem = null; // Clear any pending loot target
+                    currentTarget = null; // Clear combat target
+                    isAttackingTarget = false; 
+                    if (enemyNameplateUI != null) enemyNameplateUI.SetActive(false);
+
+                    targetedNPCDialogue = hit.collider.GetComponent<NPCDialogue>();
+                    if (targetedNPCDialogue == null)
+                    {
+                        Debug.LogError("NPCDialogue component not found on the clicked NPC.");
+                        targetNPC = null; // Clear target if component is missing
+                        return; // Exit as it's not a valid NPC for dialogue
+                    }
+
+                    float distanceToNPC = Vector3.Distance(transform.position, hit.transform.position);
+
+                    if (distanceToNPC <= targetedNPCDialogue.interactionRange)
+                    {
+                        // Already in range, start dialogue immediately
+                        navMeshAgent.ResetPath(); // Stop any movement
+                        targetNPC = null; // Clear pending NPC target
+                        targetedNPCDialogue.StartDialogue();
+                    }
+                    else
+                    {
+                        // Out of range, set as target to move towards
+                        targetNPC = hit.transform;
+                        navMeshAgent.SetDestination(targetNPC.position);
+                        // Dialogue will start when player reaches range (handled in a separate Update check)
                     }
                 }
                 // Original logic for enemy targeting or ground movement
@@ -194,7 +241,7 @@ public class TopDownControls : MonoBehaviour
                 }
             }
         }
-        else if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
+        else if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject() && inputEnabled)
         {
             // If holding left click, and no target is selected or not attacking a target, chase cursor
             // Only clear target-related flags if no target was selected in the first place.
@@ -219,7 +266,7 @@ public class TopDownControls : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(1)) // Right-click to unselect target or select if none
+        if (Input.GetMouseButtonDown(1) && inputEnabled) // Right-click to unselect target or select if none
         {
             // The following conditional block has been changed to allow right click to unselect target
             // even when over UI. If this is not desired, add !EventSystem.current.IsPointerOverGameObject()
@@ -271,11 +318,17 @@ public class TopDownControls : MonoBehaviour
         // Combat Logic - Only execute if a target is selected AND the player is meant to be attacking it
         if (currentTarget != null && currentEnemyStats != null && isAttackingTarget)
         {
-            // Clear any active loot target if player is engaging in combat
+            // Clear any active loot target or NPC target if player is engaging in combat
             if (targetLootItem != null) 
             {
                 targetLootItem = null;
                 navMeshAgent.ResetPath(); // Stop moving to loot if re-engaging combat
+            }
+            if (targetNPC != null)
+            {
+                targetNPC = null;
+                targetedNPCDialogue = null;
+                navMeshAgent.ResetPath(); // Stop moving to NPC if re-engaging combat
             }
 
             float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
@@ -308,10 +361,12 @@ public class TopDownControls : MonoBehaviour
         // Continuous Looting Logic (if moving towards an item)
         if (targetLootItem != null)
         {
-            // Stop combat if moving to loot a specific item
+            // Stop combat and NPC pursuit if moving to loot a specific item
             currentTarget = null; // Clear combat target
             isAttackingTarget = false;
             if (enemyNameplateUI != null) enemyNameplateUI.SetActive(false);
+            targetNPC = null; // Clear NPC target
+            targetedNPCDialogue = null;
 
             float distanceToLootItem = Vector3.Distance(transform.position, targetLootItem.position);
             if (distanceToLootItem <= lootRange)
@@ -333,6 +388,37 @@ public class TopDownControls : MonoBehaviour
                 navMeshAgent.SetDestination(targetLootItem.position);
             }
         }
+        // NEW: Continuous NPC Interaction Logic (if moving towards an NPC)
+        else if (targetNPC != null && targetedNPCDialogue != null)
+        {
+            // Clear any active loot or combat targets if player is moving to an NPC
+            if (targetLootItem != null) // This should ideally be caught by the outer else if, but for safety.
+            {
+                targetLootItem = null;
+                navMeshAgent.ResetPath();
+            }
+            if (currentTarget != null)
+            {
+                currentTarget = null;
+                isAttackingTarget = false;
+                if (enemyNameplateUI != null) enemyNameplateUI.SetActive(false);
+            }
+
+            float distanceToNPC = Vector3.Distance(transform.position, targetNPC.position);
+
+            if (distanceToNPC <= targetedNPCDialogue.interactionRange)
+            {
+                navMeshAgent.ResetPath(); // Stop moving
+                targetedNPCDialogue.StartDialogue(); // Start dialogue
+                targetNPC = null; // Clear target after interaction
+                targetedNPCDialogue = null;
+            }
+            else
+            {
+                // Continue moving towards the NPC
+                navMeshAgent.SetDestination(targetNPC.position);
+            }
+        }
 
         // Add experience on '+' key press
         if (Input.GetKeyDown(KeyCode.Plus) || Input.GetKeyDown(KeyCode.KeypadPlus))
@@ -344,7 +430,7 @@ public class TopDownControls : MonoBehaviour
         }
 
         // Smart Cast (A Key)
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.A) && inputEnabled)
         {
             // The following conditional block has been changed to allow Smart Cast (A) to be used
             // even when over UI. If this is not desired, add !EventSystem.current.IsPointerOverGameObject()
@@ -444,32 +530,68 @@ public class TopDownControls : MonoBehaviour
         {
             if (playerInventory != null)
             {
-                // Check for nearby WorldItems
-                Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, LayerMask.GetMask("Item")); // 2f is arbitrary radius, adjust as needed
+                // Check for nearby WorldItems or NPCs
+                // Use lootRange as a general interaction range for 'E' key
+                Collider[] hitColliders = Physics.OverlapSphere(transform.position, lootRange, LayerMask.GetMask("Item", "NPC"));
 
                 if (hitColliders.Length > 0)
                 {
-                    // For simplicity, pick up the first item found
-                    WorldItem worldItem = hitColliders[0].GetComponent<WorldItem>();
-                    if (worldItem != null && worldItem.itemData != null)
+                    // Prioritize NPC interaction over loot if an NPC is in range
+                    NPCDialogue nearbyNPC = null;
+                    WorldItem nearbyItem = null;
+
+                    foreach (Collider col in hitColliders)
                     {
-                        playerInventory.AddItem(worldItem.itemData); // Add item to inventory
-                        Destroy(worldItem.gameObject); // Destroy the world item
-                        playerInventory.LogAllItems(); // Log current inventory for debug
+                        NPCDialogue npc = col.GetComponent<NPCDialogue>();
+                        if (npc != null)
+                        {
+                            // Check if the NPC is within its specific interaction range
+                            if (Vector3.Distance(transform.position, npc.transform.position) <= npc.interactionRange)
+                            {
+                                nearbyNPC = npc;
+                                break; // Found an NPC within range, prioritize it
+                            }
+                        }
+                        WorldItem item = col.GetComponent<WorldItem>();
+                        if (item != null && item.itemData != null)
+                        {
+                            nearbyItem = item; // Keep track of a nearby item in case no NPC in range
+                        }
+                    }
+
+                    if (nearbyNPC != null)
+                    {
+                        // Found a nearby NPC within its interaction range, interact
+                        navMeshAgent.ResetPath(); // Stop any movement
+                        nearbyNPC.StartDialogue();
+                        targetNPC = null; // Clear any pending target
+                        targetedNPCDialogue = null;
+                        currentTarget = null; // Clear combat target
+                        isAttackingTarget = false;
+                        if (enemyNameplateUI != null) enemyNameplateUI.SetActive(false);
+                    }
+                    else if (nearbyItem != null)
+                    {
+                        // No NPC in range, or no NPC found, so loot the item
+                        playerInventory.AddItem(nearbyItem.itemData);
+                        Destroy(nearbyItem.gameObject);
+                        playerInventory.LogAllItems();
+                        targetLootItem = null; // Clear any pending loot target
+                        navMeshAgent.ResetPath(); // Stop any current movement
                     }
                     else
                     {
-                        Debug.LogWarning("Nearby object is not a valid WorldItem.");
+                        Debug.Log("No interactable items or NPCs nearby within range.");
                     }
                 }
                 else
                 {
-                    Debug.Log("No items nearby to loot.");
+                    Debug.Log("No items or NPCs nearby to interact with.");
                 }
             }
             else
             {
-                Debug.LogWarning("PlayerInventory reference is null. Cannot loot.");
+                Debug.LogWarning("PlayerInventory reference is null. Cannot loot or interact with E.");
             }
         }
 
